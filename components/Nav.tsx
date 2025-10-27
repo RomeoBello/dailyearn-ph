@@ -1,24 +1,37 @@
 'use client'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { authSubscribe, logout } from '@/lib/firebase'
+import { usePathname } from 'next/navigation'
 
-export default function Nav(){
-  const [user, setUser] = useState<any>(null)
-  useEffect(()=>authSubscribe(setUser),[])
+const links = [
+  { href: '/gigs', label: 'Gigs' },
+  { href: '/post', label: 'Post' },
+  { href: '/skills', label: 'Skills' },
+  { href: '/sell', label: 'Sell' },
+  { href: '/wallet', label: 'Wallet' },
+  { href: '/profile', label: 'Profile' },
+  // Admin link intentionally removed
+  { href: '/login', label: 'Login' },
+]
+
+export default function Nav() {
+  const pathname = usePathname()
   return (
-    <nav className='container flex items-center justify-between'>
-      <Link href='/' className='font-bold text-xl'>DailyEarn PH</Link>
-      <div className='flex gap-1 items-center'>
-        <Link className='navlink' href='/gigs'>Gigs</Link>
-        <Link className='navlink' href='/gigs/new'>Post</Link>
-        <Link className='navlink' href='/skills'>Skills</Link>
-        <Link className='navlink' href='/sell'>Sell</Link>
-        <Link className='navlink' href='/wallet'>Wallet</Link>
-        <Link className='navlink' href='/profile'>Profile</Link>
-        <Link className='navlink' href='/admin'>Admin</Link>
-        {user ? <button className='navlink' onClick={logout}>Logout</button> : <Link className='navlink' href='/login'>Login</Link>}
-      </div>
-    </nav>
+    <header className="w-full border-b border-white/10 bg-[#0B1220]">
+      <nav className="container mx-auto flex items-center justify-between py-4 px-4">
+        <Link href="/" className="font-bold text-white">DailyEarn PH</Link>
+        <ul className="flex items-center gap-5 text-sm text-gray-200">
+          {links.map((l) => (
+            <li key={l.href}>
+              <Link
+                href={l.href}
+                className={pathname?.startsWith(l.href) ? 'text-white font-semibold' : 'hover:text-white'}
+              >
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
   )
 }
