@@ -15,7 +15,6 @@ export default function Page() {
           <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
             <li>Find gigs near your current location</li>
             <li>Filter by province/city and radius (km)</li>
-            <li>PHP default currency; CAD/USD optional</li>
           </ul>
         </div>
       </div>
