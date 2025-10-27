@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn(){ return request.auth != null; }
+
+    match /gigs/{gigId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.posterUid;
+    }
+    match /skills/{id} { allow read: if true; allow create, update, delete: if isSignedIn(); }
+    match /items/{id} { allow read: if true; allow create, update, delete: if isSignedIn(); }
+
+    match /transactions/{id} {
+      allow read: if isSignedIn() && request.auth.uid == resource.data.uid;
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    }
+    match /reports/{id} { allow read: if isSignedIn(); allow write: if false; }
+    match /users/{uid} { allow read: if isSignedIn(); allow write: if isSignedIn() && request.auth.uid == uid; }
+  }
+}
