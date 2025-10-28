@@ -25,10 +25,14 @@ export default function PostGigPage() {
     return ()=>unsub()
   },[router])
 
-  async function createGig(form: FormData) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     if (!uid) return
     setBusy(true); setMsg(null)
+
     try {
+      const form = new FormData(e.currentTarget)
+
       const payload = {
         ownerUid: uid,
         title: String(form.get('title')||'').trim(),
@@ -57,12 +61,14 @@ export default function PostGigPage() {
       setTimeout(()=>router.replace('/gigs'), 800)
     } catch (e:any) {
       setMsg(e.message || 'Failed to create gig')
-    } finally { setBusy(false) }
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
     <main className="min-h-[80vh] p-6 flex justify-center">
-      <form action={createGig} className="w-full max-w-3xl bg-[#121A2E] text-white rounded-2xl p-6 space-y-5">
+      <form onSubmit={onSubmit} className="w-full max-w-3xl bg-[#121A2E] text-white rounded-2xl p-6 space-y-5">
         <h1 className="text-xl font-semibold">Post a gig</h1>
         {msg && <div className="p-3 rounded bg-black/40 text-sm">{msg}</div>}
 
