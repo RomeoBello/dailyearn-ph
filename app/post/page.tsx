@@ -5,7 +5,6 @@ import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/fi
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
 import ImageUploader from '@/components/ImageUploader'
-import type { Gig } from '@/types/Gig'
 
 const categories = [
   'Errands','Delivery','Cleaning','Repair','Tutoring','Cooking','Design','Writing','Virtual Assistant','Tech Support'
@@ -13,7 +12,7 @@ const categories = [
 
 export default function PostGigPage() {
   const router = useRouter()
-  const [uid, setUid] = useState<string>('')
+  const [uid, setUid] = useState('')
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string|null>(null)
   const [images, setImages] = useState<string[]>([])
@@ -29,9 +28,8 @@ export default function PostGigPage() {
   async function createGig(form: FormData) {
     if (!uid) return
     setBusy(true); setMsg(null)
-
     try {
-      const payload: Gig = {
+      const payload = {
         ownerUid: uid,
         title: String(form.get('title')||'').trim(),
         description: String(form.get('description')||'').trim(),
@@ -66,13 +64,12 @@ export default function PostGigPage() {
     <main className="min-h-[80vh] p-6 flex justify-center">
       <form action={createGig} className="w-full max-w-3xl bg-[#121A2E] text-white rounded-2xl p-6 space-y-5">
         <h1 className="text-xl font-semibold">Post a gig</h1>
-
         {msg && <div className="p-3 rounded bg-black/40 text-sm">{msg}</div>}
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm">Title</label>
-            <input name="title" required className="w-full mt-1 bg-black/20 rounded px-3 py-2" placeholder="e.g., Deliver documents from Makati to BGC" />
+            <input name="title" required className="w-full mt-1 bg-black/20 rounded px-3 py-2" />
           </div>
           <div>
             <label className="text-sm">Category</label>
@@ -84,7 +81,7 @@ export default function PostGigPage() {
 
         <div>
           <label className="text-sm">Description</label>
-          <textarea name="description" required rows={5} className="w-full mt-1 bg-black/20 rounded px-3 py-2" placeholder="Describe the task, requirements, schedule, meeting point, etc." />
+          <textarea name="description" required rows={5} className="w-full mt-1 bg-black/20 rounded px-3 py-2" />
         </div>
 
         <div className="grid md:grid-cols-4 gap-4">
@@ -111,11 +108,6 @@ export default function PostGigPage() {
         <div>
           <label className="text-sm">Photos</label>
           <ImageUploader gigId={'temp-'+Date.now()} onUploaded={(urls)=>setImages(urls)} />
-          {images.length>0 && (
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {images.map((u)=> <img key={u} src={u} className="w-full h-28 object-cover rounded" />)}
-            </div>
-          )}
         </div>
 
         <button disabled={busy} className="bg-white text-black rounded px-4 py-2">
