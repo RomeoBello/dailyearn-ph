@@ -7,3 +7,14 @@ export default function Page() {
     </main>
   );
 }
+// app/post/page.tsx
+"use client";
+
+export default function PostPage() {
+  return (
+    <main className="min-h-[60vh] p-6 text-white">
+      <h1 className="text-xl font-semibold mb-4">Post a Gig</h1>
+      <p>Gig posting form coming right up. (This placeholder prevents 404.)</p>
+    </main>
+  );
+}
