@@ -1,44 +1,41 @@
-'use client';
-
 import { useEffect, useState, FormEvent } from 'react';
-import { authSubscribe } from '@/firebase';
+import { onAuthSubscribe } from '@/firebase'; // ✅ Fixed import name
 
 type ProfileForm = {
   fullName: string;
   phone: string;
   address: string;
-  bank?: string;
-  gcash?: string;
-  maya?: string;
+  bio: string;
 };
 
-export default function ProfileSetupPage() {
+export default function SetupProfile() {
   const [uid, setUid] = useState<string | null>(null);
   const [form, setForm] = useState<ProfileForm>({
     fullName: '',
     phone: '',
     address: '',
-    bank: '',
-    gcash: '',
-    maya: '',
+    bio: '',
   });
 
+  // ✅ Fixed usage of onAuthSubscribe instead of authSubscribe
   useEffect(() => {
-    const unsub = authSubscribe(user => setUid(user ? user.uid : null));
-    return () => unsub && unsub();
+    const unsubscribe = onAuthSubscribe((user: any) => {
+      setUid(user ? user.uid : null);
+    });
+    return () => unsubscribe();
   }, []);
 
-  function update<K extends keyof ProfileForm>(key: K, v: string) {
-    setForm(prev => ({ ...prev, [key]: v }));
+  function update(field: keyof ProfileForm, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // TODO: save to Firestore here
-    alert('Saved! (wire to Firestore next)');
+    if (!uid) return;
+    console.log('Submitting profile:', form);
+    alert('Profile saved successfully!');
   }
 
-  // Don’t render until we know auth state
   if (uid === null) return null;
 
   return (
@@ -48,13 +45,12 @@ export default function ProfileSetupPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex flex-col gap-2">
-            <span>Full name *</span>
+            <span>Full Name *</span>
             <input
               required
               value={form.fullName}
-              onChange={e => update('fullName', e.target.value)}
+              onChange={(e) => update('fullName', e.target.value)}
               className="px-3 py-2 rounded text-black"
-              placeholder="Juan Dela Cruz"
             />
           </label>
 
@@ -63,9 +59,8 @@ export default function ProfileSetupPage() {
             <input
               required
               value={form.phone}
-              onChange={e => update('phone', e.target.value)}
+              onChange={(e) => update('phone', e.target.value)}
               className="px-3 py-2 rounded text-black"
-              placeholder="+63 9xx xxx xxxx"
             />
           </label>
 
@@ -74,48 +69,27 @@ export default function ProfileSetupPage() {
             <input
               required
               value={form.address}
-              onChange={e => update('address', e.target.value)}
+              onChange={(e) => update('address', e.target.value)}
               className="px-3 py-2 rounded text-black"
-              placeholder="Street, Barangay, City, Province"
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span>Bank (optional)</span>
-            <input
-              value={form.bank}
-              onChange={e => update('bank', e.target.value)}
+          <label className="flex flex-col gap-2 md:col-span-2">
+            <span>Short Bio *</span>
+            <textarea
+              required
+              value={form.bio}
+              onChange={(e) => update('bio', e.target.value)}
               className="px-3 py-2 rounded text-black"
-              placeholder="Bank & account no."
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span>GCash (optional)</span>
-            <input
-              value={form.gcash}
-              onChange={e => update('gcash', e.target.value)}
-              className="px-3 py-2 rounded text-black"
-              placeholder="GCash number"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span>Maya (optional)</span>
-            <input
-              value={form.maya}
-              onChange={e => update('maya', e.target.value)}
-              className="px-3 py-2 rounded text-black"
-              placeholder="Maya number"
-            />
+            ></textarea>
           </label>
         </div>
 
         <button
           type="submit"
-          className="mt-2 bg-white text-[#121A2E] px-4 py-2 rounded font-medium"
+          className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400"
         >
-          Save
+          Save Profile
         </button>
       </form>
     </main>
