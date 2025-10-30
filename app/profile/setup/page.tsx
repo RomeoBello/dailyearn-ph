@@ -1,56 +1,88 @@
+'use client';
+
 import { useEffect, useState, FormEvent } from 'react';
-import { onAuthSubscribe } from '@/firebase'; // ✅ Fixed import name
+import { onAuthSubscribe } from '@/firebase'; // ✅ THIS is the correct name
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 type ProfileForm = {
   fullName: string;
   phone: string;
   address: string;
-  bio: string;
+  city: string;
+  country: string;
+  payoutMethod: string;
+  payoutAccount: string;
 };
 
-export default function SetupProfile() {
+export default function ProfileSetupPage() {
   const [uid, setUid] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<ProfileForm>({
     fullName: '',
     phone: '',
     address: '',
-    bio: '',
+    city: '',
+    country: 'PH',
+    payoutMethod: '',
+    payoutAccount: '',
   });
 
-  // ✅ Fixed usage of onAuthSubscribe instead of authSubscribe
+  // subscribe to auth
   useEffect(() => {
-    const unsubscribe = onAuthSubscribe((user: any) => {
-      setUid(user ? user.uid : null);
+    const unsub = onAuthSubscribe((user) => {
+      if (user) {
+        setUid(user.uid);
+      } else {
+        setUid(null);
+      }
+      setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => unsub();
   }, []);
 
-  function update(field: keyof ProfileForm, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  function update<K extends keyof ProfileForm>(key: K, value: ProfileForm[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!uid) return;
-    console.log('Submitting profile:', form);
-    alert('Profile saved successfully!');
+
+    await setDoc(doc(db, 'profiles', uid), {
+      ...form,
+      updatedAt: new Date().toISOString(),
+    });
+    alert('Profile saved!');
   }
 
-  if (uid === null) return null;
+  // don't render until we know auth
+  if (loading) return null;
+  if (uid === null) {
+    return (
+      <main className="min-h-[80vh] p-6 flex justify-center items-center text-white">
+        <p>You must log in first.</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-[80vh] p-6 flex justify-center">
-      <form onSubmit={handleSubmit} className="w-full max-w-2xl bg-[#121A2E] text-white rounded-2xl p-6 space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-2xl bg-[#121A2E] text-white rounded-2xl p-6 space-y-4"
+      >
         <h1 className="text-xl font-semibold">Complete your profile</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex flex-col gap-2">
-            <span>Full Name *</span>
+            <span>Full name *</span>
             <input
               required
               value={form.fullName}
               onChange={(e) => update('fullName', e.target.value)}
-              className="px-3 py-2 rounded text-black"
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
             />
           </label>
 
@@ -60,7 +92,7 @@ export default function SetupProfile() {
               required
               value={form.phone}
               onChange={(e) => update('phone', e.target.value)}
-              className="px-3 py-2 rounded text-black"
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
             />
           </label>
 
@@ -70,26 +102,56 @@ export default function SetupProfile() {
               required
               value={form.address}
               onChange={(e) => update('address', e.target.value)}
-              className="px-3 py-2 rounded text-black"
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
             />
           </label>
 
-          <label className="flex flex-col gap-2 md:col-span-2">
-            <span>Short Bio *</span>
-            <textarea
+          <label className="flex flex-col gap-2">
+            <span>City *</span>
+            <input
               required
-              value={form.bio}
-              onChange={(e) => update('bio', e.target.value)}
-              className="px-3 py-2 rounded text-black"
-            ></textarea>
+              value={form.city}
+              onChange={(e) => update('city', e.target.value)}
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span>Country *</span>
+            <input
+              required
+              value={form.country}
+              onChange={(e) => update('country', e.target.value)}
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span>Payout method (GCash / Maya / Bank) *</span>
+            <input
+              required
+              value={form.payoutMethod}
+              onChange={(e) => update('payoutMethod', e.target.value)}
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span>Payout account / number *</span>
+            <input
+              required
+              value={form.payoutAccount}
+              onChange={(e) => update('payoutAccount', e.target.value)}
+              className="px-3 py-2 rounded bg-[#0D1422] border border-[#1E2A3A]"
+            />
           </label>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400"
+          className="bg-white text-[#121A2E] px-4 py-2 rounded font-semibold"
         >
-          Save Profile
+          Save profile
         </button>
       </form>
     </main>
