@@ -13,20 +13,13 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-export async function loginWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  await signInWithPopup(auth, provider);
-}
+export const loginWithGoogle = async () => await signInWithPopup(auth, new GoogleAuthProvider());
+export const logout = async () => await signOut(auth);
+export function authSubscribe(cb) { return onAuthStateChanged(auth, cb); }
 
-export async function logout() {
-  await signOut(auth);
-}
-
-export function onAuthSubscribe(cb: (user: any) => void) {
-  return onAuthStateChanged(auth, cb);
-}
+export { app, auth, db, storage };
