@@ -1,0 +1,1 @@
+export function geohashForLatLng(lat:number,lng:number){const p=(n:number)=>Math.round((n+180)*1000);return `${p(lat)}:${p(lng)}`;}

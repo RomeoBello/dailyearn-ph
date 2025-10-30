@@ -1,23 +1,36 @@
-# DailyEarn PH — Nationwide micro-gigs
+# DailyEarn PH — Gig Form Pack
 
-This is a Philippines‑wide starter. Key additions:
-- **Province/City fields** on gigs
-- **Browser geolocation** capture (lat/lng)
-- **Radius filter "near me"** on `/gigs`
-- Default **PHP** currency (others optional)
+Adds a complete "Post a gig" form with image uploads to Firebase Storage and Firestore.
 
-## Quickstart
-1) `npm install`
-2) Setup Firebase (Auth, Firestore, Storage). Enable Google Sign‑in.
-3) Copy `.env.local.example` → `.env.local`, paste Firebase web config.
-4) `npm run dev` → http://localhost:3000
+## Files
+- app/post/page.tsx — gig form
+- components/ImageUploader.tsx — multi-image uploader with progress (max 5, 4MB each)
+- types/Gig.ts — TypeScript type
 
-## Deploy
-- Vercel for web. Add the same env vars.
-- `npm run functions:deploy` to deploy Cloud Functions (optional).
+## Requires
+- `@/lib/firebase` exporting `auth`, `db`, and `storage`
 
-## Roadmap for PH
-- Add **GCash/Maya** payout confirmations (record as `transactions`).
-- Seed supply in **every province** via FB groups & barangay pages.
-- Add **geo index** (e.g., Firestore + geohash) if you want server‑side radius queries.
-- Add **roles** (admin/moderator) and stricter security rules.
+## Firebase rules (example)
+Firestore:
+```
+match /databases/{database}/documents {
+  match /gigs/{gigId} {
+    allow read: if true;
+    allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+    allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+  }
+}
+```
+Storage:
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /gigs/{gigId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+

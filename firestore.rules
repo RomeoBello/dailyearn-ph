@@ -1,21 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn(){ return request.auth != null; }
-
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
     match /gigs/{gigId} {
       allow read: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.posterUid;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
-    match /skills/{id} { allow read: if true; allow create, update, delete: if isSignedIn(); }
-    match /items/{id} { allow read: if true; allow create, update, delete: if isSignedIn(); }
-
-    match /transactions/{id} {
-      allow read: if isSignedIn() && request.auth.uid == resource.data.uid;
-      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    match /profiles/{uid} { allow read: if true; allow create, update: if isOwner(uid); allow delete: if false; }
+    match /wallet/{uid}/transactions/{txId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid);
+      allow update, delete: if false;
     }
-    match /reports/{id} { allow read: if isSignedIn(); allow write: if false; }
-    match /users/{uid} { allow read: if isSignedIn(); allow write: if isSignedIn() && request.auth.uid == uid; }
   }
 }

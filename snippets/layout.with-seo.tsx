@@ -1,0 +1,1 @@
+export const metadata={title:'DailyEarn PH — Earn Today, Anywhere in the Philippines',description:'Find gigs, sell skills, and earn same-day income.',openGraph:{images:['/og-image.png']}} as const;

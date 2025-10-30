@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "gigs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "loc.region",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "loc.province",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

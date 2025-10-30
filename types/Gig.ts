@@ -13,5 +13,5 @@ export type Gig = {
   createdAt?: any
   updatedAt?: any
   images: string[]
-  status: 'open' | 'assigned' | 'done' | 'cancelled'
+  status: 'open'|'assigned'|'done'|'cancelled'
 }
