@@ -13,17 +13,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@/firebase": ["./firebase.ts"],
-      "@/components/*": ["./components/*"],
-      "@/app/*": ["./app/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/types/*": ["./types/*"]
+      "@/firebase": ["./firebase.ts"]
     },
-
     "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
